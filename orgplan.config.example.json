@@ -1,0 +1,11 @@
+{
+  "data_root": "C:\\Users\\you\\orgplan-data",
+  "plugins": [
+    "C:\\Users\\you\\repos\\orgplan-todo"
+  ],
+  "plugin_opts": {
+    "orgplan-todo": {
+      "todo_config": "C:\\Users\\you\\orgplan-data\\secrets\\todo.json"
+    }
+  }
+}

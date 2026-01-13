@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "orgplan"
+version = "0.1.0"
+description = "Plaintext productivity with explicit command plugins"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+authors = [
+  { name = "mlrdev" }
+]
+keywords = ["productivity", "markdown", "tasks"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License"
+]
+
+[project.scripts]
+orgplan = "orgplan.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["orgplan*"]
