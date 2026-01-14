@@ -5,12 +5,13 @@ import os
 
 
 class Task:
-    def __init__(self, title, state="open", due_date=None, tags=None, notes=None):
+    def __init__(self, title, state="open", due_date=None, tags=None, notes=None, line_number=None):
         self.title = title
         self.state = state
         self.due_date = due_date
         self.tags = list(tags or [])
         self.notes = notes
+        self.line_number = line_number
 
     def __repr__(self):
         return (
@@ -19,7 +20,9 @@ class Task:
             f"state={self.state!r}, "
             f"due_date={self.due_date!r}, "
             f"tags={self.tags!r}, "
-            f"notes={self.notes!r}"
+            f"tags={self.tags!r}, "
+            f"notes={self.notes!r}, "
+            f"line_number={self.line_number!r}"
             ")"
         )
 

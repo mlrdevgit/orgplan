@@ -35,7 +35,7 @@ def parse_todo_list(text):
     in_todo = False
     tasks = []
 
-    for line in lines:
+    for i, line in enumerate(lines, 1):
         stripped = line.strip()
         if _TODO_HEADER_PATTERN.match(stripped):
             in_todo = True
@@ -50,7 +50,7 @@ def parse_todo_list(text):
         if not stripped.startswith("-"):
             continue
 
-        task = _parse_task_line(stripped)
+        task = _parse_task_line(stripped, line_number=i)
         if task is not None:
             tasks.append(task)
 
@@ -102,19 +102,19 @@ def parse_month_notes(text):
     return tasks
 
 
-def _parse_task_line(line):
+def _parse_task_line(line, line_number=None):
     content = line.lstrip("- ").strip()
     if not content:
         return None
 
-    state, tags, title = _parse_title_parts(content)
+    state, tags, title = parse_title_parts(content)
     if not title:
         return None
 
-    return Task(title=title, state=state, tags=tags)
+    return Task(title=title, state=state, tags=tags, line_number=line_number)
 
 
-def _parse_title_parts(content):
+def parse_title_parts(content):
     state = "open"
     match = re.match(r"^\[(?P<status>[A-Z]+)\]\s+(?P<body>.+)$", content)
     if match and match.group("status") in _STATUS_MAP:
@@ -140,5 +140,5 @@ def _normalize_header_title(raw_title):
     content = raw_title.strip()
     if not content:
         return ""
-    _, _, title = _parse_title_parts(content)
+    _, _, title = parse_title_parts(content)
     return title
