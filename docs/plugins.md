@@ -38,8 +38,22 @@ def register(registry):
 ## Reference plugin
 
 A working reference plugin lives at `examples/reference_plugin/orgplan_plugin.py`.
-It provides:
+It provides the following commands:
 
-- `tasks-month` (current year+month, optional `--state`)
-- `tasks-count` (counts by state, optional `--year`/`--month`)
-- `healthcheck` (verifies `data_root` if set)
+### General Commands
+- `healthcheck` - Verifies `data_root` if set
+- `tasks-month` - Lists tasks for current year+month (optional `--state`)
+- `tasks-count` - Counts tasks by state (optional `--year`/`--month`)
+
+### State Filter Commands
+- `tasks-open` - Lists open tasks (optional `--year`/`--month`)
+- `tasks-done` - Lists done tasks (optional `--year`/`--month`)
+- `tasks-canceled` - Lists canceled tasks (optional `--year`/`--month`)
+- `tasks-non-open` - Lists all non-open tasks (done, canceled, delegated, pending) with state labels (optional `--year`/`--month`)
+
+### Priority Filter Commands
+- `tasks-p0` - Lists P0 priority tasks (optional `--year`/`--month`/`--state`)
+- `tasks-p1` - Lists P1 priority tasks (optional `--year`/`--month`/`--state`)
+- `tasks-priority` - Lists all P0/P1 priority tasks with priority labels (optional `--year`/`--month`/`--state`)
+
+All filter commands display task titles, due dates, and relevant tags. When year/month are not specified, defaults to the current year and month.
