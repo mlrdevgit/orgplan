@@ -62,6 +62,75 @@ python3 -m orgplan --config C:\Users\you\orgplan.config.json help
 python3 -m orgplan --config C:\Users\you\orgplan.config.json tasks-month
 ```
 
+## Available Commands (Reference Plugin)
+
+The reference plugin provides several commands for querying and filtering tasks. All commands support `--year` and `--month` parameters (defaults to current month if not specified).
+
+### General Commands
+
+**List tasks for current month:**
+```bash
+python3 -m orgplan tasks-month
+python3 -m orgplan tasks-month --state done  # Filter by state
+```
+
+**Count tasks by state:**
+```bash
+python3 -m orgplan tasks-count
+python3 -m orgplan tasks-count --year 2025 --month 1
+```
+
+**Check plugin health:**
+```bash
+python3 -m orgplan healthcheck
+```
+
+### Filter by Task State
+
+**List open tasks:**
+```bash
+python3 -m orgplan tasks-open
+python3 -m orgplan tasks-open --year 2025 --month 1
+```
+
+**List done tasks:**
+```bash
+python3 -m orgplan tasks-done
+```
+
+**List canceled tasks:**
+```bash
+python3 -m orgplan tasks-canceled
+```
+
+**List all non-open tasks (done, canceled, delegated, pending):**
+```bash
+python3 -m orgplan tasks-non-open
+```
+Shows state labels like `[DONE]`, `[CANCELED]`, etc.
+
+### Filter by Priority
+
+**List P0 priority tasks:**
+```bash
+python3 -m orgplan tasks-p0
+python3 -m orgplan tasks-p0 --state open  # Only open P0 tasks
+```
+
+**List P1 priority tasks:**
+```bash
+python3 -m orgplan tasks-p1
+```
+
+**List all P0/P1 priority tasks:**
+```bash
+python3 -m orgplan tasks-priority
+python3 -m orgplan tasks-priority --state open  # Only open priority tasks
+```
+Shows priority labels like `[P0]`, `[P1]`.
+
+All filter commands display task titles, due dates, and relevant tags.
+
 ## File format
 Monthly notes live at `YYYY/MM-notes.md` and begin with `# TODO List`.
 The parser also accepts the historical `#TODO List` variant. See `docs/format.md`
