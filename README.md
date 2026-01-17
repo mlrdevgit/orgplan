@@ -131,6 +131,69 @@ Shows priority labels like `[P0]`, `[P1]`.
 
 All filter commands display task titles, due dates, and relevant tags.
 
+## Claude Code Commands
+
+The orgplan project can provide slash commands for Claude Code to enable AI-assisted workflows like morning reviews, daily planning, and task management. Commands are stored in `commands/` and can be shared across multiple projects.
+
+### How Claude Code Discovers Commands
+
+Claude Code looks for slash commands in two locations:
+- **Project commands**: `.claude/commands/` in the current working directory
+- **Personal commands**: `~/.claude/commands/` in your home directory
+
+### Recommended Setup: Symlinks/Junctions
+
+Store commands in the orgplan repo and link them to your data directory:
+
+**On Linux/WSL:**
+```bash
+# From your data directory (e.g.,~/orgplan-data)
+ln -s /path/to/repos/orgplan/commands .claude/commands-orgplan
+
+# Or link individual commands
+mkdir -p .claude/commands
+ln -s /path/to/repos/orgplan/commands/morning-review.md .claude/commands/
+```
+
+**On Windows (using junctions - no admin required):**
+```cmd
+REM From your data directory (e.g., C:\Users\you\orgplan-data)
+mklink /J .claude\commands-orgplan C:\path\to\repos\orgplan\commands
+```
+
+**Using personal commands (available everywhere):**
+```bash
+mkdir -p ~/.claude/commands
+ln -s /path/to/repos/orgplan/commands/* ~/.claude/commands/
+```
+
+### How Commands Access Your Data
+
+Commands can reference data outside `.claude/commands/` using:
+- **Relative paths**: `@orgplan/2026/01-notes.md` (relative to working directory)
+- **Absolute paths**: `/home/user/orgplan-data/2026/01-notes.md`
+- **Bash commands**: `!find orgplan -name "*-notes.md"`
+
+This approach:
+- Keeps commands version-controlled in the orgplan repo
+- Makes them available when working in your data directory
+- Windows-friendly (junctions work without elevated privileges)
+- Commands stay up-to-date automatically
+- Can be published and shared with the orgplan repo
+
+### Available Claude Code Commands
+
+Commands will be added to `.claude/commands/` as they are developed. Planned commands include:
+- `/morning-review` - Analyze TODO list and recommend 3-5 high impact tasks
+- `/daily-plan` - Create a realistic, time-blocked schedule
+- `/weekly-carryover` - Identify pending tasks from last week
+- `/task-status` - Check status and progress of specific tasks
+- `/task-find` - Find all tasks related to a keyword
+- `/task-resume` - Rebuild context and resume work on a task
+- `/task-breakdown` - Break large tasks into actionable subtasks
+- `/weekly-summary` - Generate comprehensive weekly summary
+- `/weekly-post` - Generate weekly status update
+
 ## File format
 Monthly notes live at `YYYY/MM-notes.md` and begin with `# TODO List`.
 The parser also accepts the historical `#TODO List` variant. See `docs/format.md`
