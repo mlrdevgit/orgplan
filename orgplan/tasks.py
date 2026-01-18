@@ -5,13 +5,26 @@ import os
 
 
 class Task:
-    def __init__(self, title, state="open", due_date=None, tags=None, notes=None, line_number=None):
+    def __init__(self, title, state="open", due_date=None, tags=None, notes=None,
+                 line_number=None, deadline=None, scheduled=None, timestamp=None):
         self.title = title
         self.state = state
-        self.due_date = due_date
+        self._legacy_due_date = due_date
         self.tags = list(tags or [])
         self.notes = notes
         self.line_number = line_number
+        self.deadline = list(deadline or [])
+        self.scheduled = list(scheduled or [])
+        self.timestamp = list(timestamp or [])
+
+    @property
+    def due_date(self):
+        """Return first deadline, or first scheduled, or legacy due_date."""
+        if self.deadline:
+            return self.deadline[0]
+        if self.scheduled:
+            return self.scheduled[0]
+        return self._legacy_due_date
 
     def __repr__(self):
         return (
@@ -20,9 +33,11 @@ class Task:
             f"state={self.state!r}, "
             f"due_date={self.due_date!r}, "
             f"tags={self.tags!r}, "
-            f"tags={self.tags!r}, "
             f"notes={self.notes!r}, "
-            f"line_number={self.line_number!r}"
+            f"line_number={self.line_number!r}, "
+            f"deadline={self.deadline!r}, "
+            f"scheduled={self.scheduled!r}, "
+            f"timestamp={self.timestamp!r}"
             ")"
         )
 

@@ -91,10 +91,13 @@ orgplan/
 class Task:
     title: str           # Task text (after removing status/tags)
     state: str           # "open" | "done" | "canceled" | "delegated" | "pending"
-    due_date: date       # Optional datetime.date
+    due_date: date       # Property: first deadline, then first scheduled, then legacy
     tags: list[str]      # Tags: p0, p1, p2, 1h, 2h, 4h, 1d, blocked, weekly, monthly
     notes: str           # Optional: from matching header section
     line_number: int     # Optional: for reference/debugging
+    deadline: list       # List of deadline timestamps (date or datetime)
+    scheduled: list      # List of scheduled timestamps (date or datetime)
+    timestamp: list      # List of plain timestamps (date or datetime)
 ```
 
 ### File Format
@@ -128,6 +131,12 @@ Can span multiple lines.
 - Estimates: `#1h`, `#2h`, `#4h`, `#1d`
 - State: `#blocked`
 - Recurrence: `#weekly`, `#monthly`
+
+**Timestamps:**
+- Format: `<YYYY-MM-DD>`, `<YYYY-MM-DD Day>`, or `<YYYY-MM-DD Day HH:MM>`
+- Types: `DEADLINE: <date>`, `SCHEDULED: <date>`, or plain `<date>`
+- Parsed from task line or notes section (task line takes precedence)
+- `due_date` property returns first deadline, or first scheduled if no deadline
 
 ## Code Conventions & Patterns
 

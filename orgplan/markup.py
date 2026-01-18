@@ -1,5 +1,6 @@
 """Parsing helpers for orgplan markdown files."""
 
+import datetime
 import re
 
 from orgplan.tasks import Task
@@ -27,6 +28,76 @@ _TAG_SET = {
     "weekly",
     "monthly",
 }
+
+# Timestamp pattern: <YYYY-MM-DD> or <YYYY-MM-DD Day> or <YYYY-MM-DD Day HH:MM>
+_TIMESTAMP_PATTERN = re.compile(
+    r"<(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})"
+    r"(?:\s+\w+)?"  # Optional day name (Mon, Tue, Wednesday, etc)
+    r"(?:\s+(?P<hour>\d{2}):(?P<minute>\d{2}))?"  # Optional time HH:MM
+    r">"
+)
+
+
+def _extract_datetime(match):
+    """Extract datetime.date or datetime.datetime from a regex match."""
+    try:
+        year = int(match.group("year"))
+        month = int(match.group("month"))
+        day = int(match.group("day"))
+        hour = match.group("hour")
+        minute = match.group("minute")
+
+        if hour and minute:
+            return datetime.datetime(year, month, day, int(hour), int(minute))
+        else:
+            return datetime.date(year, month, day)
+    except (ValueError, AttributeError):
+        return None
+
+
+def _parse_timestamps(text):
+    """Parse timestamps from text, returning (deadlines, scheduled, timestamps).
+
+    Returns:
+        tuple: (list[datetime], list[datetime], list[datetime])
+    """
+    deadlines = []
+    scheduled_list = []
+    plain_timestamps = []
+
+    # Track which character positions contain prefixed timestamps
+    prefixed_timestamp_starts = set()
+
+    # Parse DEADLINE: timestamps - track where the <timestamp> portion starts
+    for match in re.finditer(r"DEADLINE:\s*(<\d{4}-\d{2}-\d{2}[^>]*>)", text):
+        # Find the actual timestamp within this match
+        ts_match = _TIMESTAMP_PATTERN.search(match.group(0))
+        if ts_match:
+            dt = _extract_datetime(ts_match)
+            if dt:
+                deadlines.append(dt)
+                # Record the absolute position of the timestamp
+                prefixed_timestamp_starts.add(match.start() + ts_match.start())
+
+    # Parse SCHEDULED: timestamps
+    for match in re.finditer(r"SCHEDULED:\s*(<\d{4}-\d{2}-\d{2}[^>]*>)", text):
+        ts_match = _TIMESTAMP_PATTERN.search(match.group(0))
+        if ts_match:
+            dt = _extract_datetime(ts_match)
+            if dt:
+                scheduled_list.append(dt)
+                prefixed_timestamp_starts.add(match.start() + ts_match.start())
+
+    # Parse plain timestamps (exclude those already found as prefixed)
+    for match in _TIMESTAMP_PATTERN.finditer(text):
+        if match.start() in prefixed_timestamp_starts:
+            continue
+
+        dt = _extract_datetime(match)
+        if dt:
+            plain_timestamps.append(dt)
+
+    return deadlines, scheduled_list, plain_timestamps
 
 
 def parse_todo_list(text):
@@ -74,12 +145,19 @@ def parse_month_notes(text):
         task = task_map.get(current_title)
         if task is not None:
             notes = "\n".join(current_lines)
-            lines = notes.splitlines()
-            while lines and not lines[0].strip():
-                lines.pop(0)
-            while lines and not lines[-1].strip():
-                lines.pop()
-            task.notes = "\n".join(lines)
+            notes_lines = notes.splitlines()
+            while notes_lines and not notes_lines[0].strip():
+                notes_lines.pop(0)
+            while notes_lines and not notes_lines[-1].strip():
+                notes_lines.pop()
+            task.notes = "\n".join(notes_lines)
+
+            # Extract timestamps from notes (only if not already set from task line)
+            if task.notes and not (task.deadline or task.scheduled or task.timestamp):
+                deadlines, scheduled_list, timestamps = _parse_timestamps(task.notes)
+                task.deadline = deadlines
+                task.scheduled = scheduled_list
+                task.timestamp = timestamps
 
     for line in lines:
         stripped = line.strip()
@@ -111,7 +189,18 @@ def _parse_task_line(line, line_number=None):
     if not title:
         return None
 
-    return Task(title=title, state=state, tags=tags, line_number=line_number)
+    # Extract timestamps from the task line
+    deadlines, scheduled_list, timestamps = _parse_timestamps(content)
+
+    return Task(
+        title=title,
+        state=state,
+        tags=tags,
+        line_number=line_number,
+        deadline=deadlines,
+        scheduled=scheduled_list,
+        timestamp=timestamps,
+    )
 
 
 def parse_title_parts(content):
