@@ -183,8 +183,17 @@ This approach:
 
 ### Available Claude Code Commands
 
-Commands will be added to `.claude/commands/` as they are developed. Planned commands include:
-- `/morning-review` - Analyze TODO list and recommend 3-5 high impact tasks
+Commands are stored in `commands/` and provide guided AI workflows for productivity checkpoints.
+
+**Productivity checkpoints:**
+- `/morning-review` - Analyze TODO list and recommend 3-5 high impact tasks for today
+- `/evening-review` - Reflect on the day's progress, identify carry-over tasks, set up tomorrow
+- `/week-planning` - Plan the upcoming week with prioritized tasks, deadlines, and workload estimates
+- `/month-planning` - Plan the upcoming month: carry-forward tasks, set goals, assess capacity
+- `/monthly-retro` - Retrospective on the past month with metrics, patterns, and actionable takeaways
+- `/yearly-goals` - Check progress against yearly goals, identify what's on track vs. at risk
+
+**Planned commands:**
 - `/daily-plan` - Create a realistic, time-blocked schedule
 - `/weekly-carryover` - Identify pending tasks from last week
 - `/task-status` - Check status and progress of specific tasks
