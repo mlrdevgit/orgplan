@@ -8,6 +8,17 @@ def _parse_args(parser, args):
     return parser.parse_args(args)
 
 
+def _resolve_year_month(api, year, month):
+    """Fill in missing year/month from the current date."""
+    if year is None or month is None:
+        cur_year, cur_month = api.dates.current_year_month()
+        if year is None:
+            year = cur_year
+        if month is None:
+            month = cur_month
+    return year, month
+
+
 def register(registry):
     api = registry.api
 
@@ -36,13 +47,15 @@ def register(registry):
         parser.add_argument("--month", type=int, help="Month to filter tasks")
         opts = _parse_args(parser, args)
 
-        tasks = api.tasks.list(year=opts.year, month=opts.month)
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+
+        tasks = api.tasks.list(year=year, month=month)
         counts = {}
         for task in tasks:
             counts[task.state] = counts.get(task.state, 0) + 1
 
         if not counts:
-            print("No tasks found.")
+            print(f"No tasks found for {year:04d}-{month:02d}.")
             return 0
 
         for state in sorted(counts.keys()):
@@ -55,10 +68,11 @@ def register(registry):
         parser.add_argument("--month", type=int, help="Month to filter tasks")
         opts = _parse_args(parser, args)
 
-        tasks = api.tasks.list(year=opts.year, month=opts.month, state="open")
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        tasks = api.tasks.list(year=year, month=month, state="open")
 
         if not tasks:
-            print("No open tasks found.")
+            print(f"No open tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"Open tasks ({len(tasks)}):")
@@ -74,10 +88,11 @@ def register(registry):
         parser.add_argument("--month", type=int, help="Month to filter tasks")
         opts = _parse_args(parser, args)
 
-        tasks = api.tasks.list(year=opts.year, month=opts.month, state="done")
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        tasks = api.tasks.list(year=year, month=month, state="done")
 
         if not tasks:
-            print("No done tasks found.")
+            print(f"No done tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"Done tasks ({len(tasks)}):")
@@ -93,10 +108,11 @@ def register(registry):
         parser.add_argument("--month", type=int, help="Month to filter tasks")
         opts = _parse_args(parser, args)
 
-        tasks = api.tasks.list(year=opts.year, month=opts.month, state="canceled")
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        tasks = api.tasks.list(year=year, month=month, state="canceled")
 
         if not tasks:
-            print("No canceled tasks found.")
+            print(f"No canceled tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"Canceled tasks ({len(tasks)}):")
@@ -112,11 +128,12 @@ def register(registry):
         parser.add_argument("--month", type=int, help="Month to filter tasks")
         opts = _parse_args(parser, args)
 
-        all_tasks = api.tasks.list(year=opts.year, month=opts.month)
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        all_tasks = api.tasks.list(year=year, month=month)
         tasks = [task for task in all_tasks if task.state != "open"]
 
         if not tasks:
-            print("No non-open tasks found.")
+            print(f"No non-open tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"Non-open tasks ({len(tasks)}):")
@@ -133,11 +150,12 @@ def register(registry):
         parser.add_argument("--state", help="Filter by task state (e.g., open, done)")
         opts = _parse_args(parser, args)
 
-        all_tasks = api.tasks.list(year=opts.year, month=opts.month, state=opts.state)
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        all_tasks = api.tasks.list(year=year, month=month, state=opts.state)
         tasks = [task for task in all_tasks if "p0" in task.tags]
 
         if not tasks:
-            print("No P0 tasks found.")
+            print(f"No P0 tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"P0 tasks ({len(tasks)}):")
@@ -154,11 +172,12 @@ def register(registry):
         parser.add_argument("--state", help="Filter by task state (e.g., open, done)")
         opts = _parse_args(parser, args)
 
-        all_tasks = api.tasks.list(year=opts.year, month=opts.month, state=opts.state)
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        all_tasks = api.tasks.list(year=year, month=month, state=opts.state)
         tasks = [task for task in all_tasks if "p1" in task.tags]
 
         if not tasks:
-            print("No P1 tasks found.")
+            print(f"No P1 tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"P1 tasks ({len(tasks)}):")
@@ -175,11 +194,12 @@ def register(registry):
         parser.add_argument("--state", help="Filter by task state (e.g., open, done)")
         opts = _parse_args(parser, args)
 
-        all_tasks = api.tasks.list(year=opts.year, month=opts.month, state=opts.state)
+        year, month = _resolve_year_month(api, opts.year, opts.month)
+        all_tasks = api.tasks.list(year=year, month=month, state=opts.state)
         tasks = [task for task in all_tasks if "p0" in task.tags or "p1" in task.tags]
 
         if not tasks:
-            print("No P0/P1 tasks found.")
+            print(f"No P0/P1 tasks found for {year:04d}-{month:02d}.")
             return 0
 
         print(f"P0/P1 priority tasks ({len(tasks)}):")
